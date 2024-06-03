@@ -101,17 +101,13 @@ end
 --- @param a table<integer, integer>
 --- @param b table<integer, integer>
 --- @return boolean
-function M.posLt(a, b)
-	return a[1] < b[1] or (a[1] == b[1] and a[2] < b[2])
-end
+function M.posLt(a, b) return a[1] < b[1] or (a[1] == b[1] and a[2] < b[2]) end
 
 --- Checks whether positions `a` and `b` are equal.
 --- @param a table<integer, integer>
 --- @param b table<integer, integer>
 --- @return boolean
-function M.posEq(a, b)
-	return a[1] == b[1] and a[2] == b[2]
-end
+function M.posEq(a, b) return a[1] == b[1] and a[2] == b[2] end
 
 --- Checks whether given 2 positions are on the same character.
 --- Positions are (1, 0) indexed, clamped.

@@ -24,23 +24,24 @@ function M.rangeToVisual(p1, p2, context)
 	u.clampPos(p2, context)
 
 	local sel = context.selection
-	if sel == 'exclusive' then
-		return not u.isSameChar(p1, p2, context)
-	end
+	if sel == "exclusive" then return not u.isSameChar(p1, p2, context) end
 
 	local posF, posL
-	if u.posLt(p1, p2) then posF, posL = p1, p2
-	else posF, posL = p2, p1 end
+	if u.posLt(p1, p2) then
+		posF, posL = p1, p2
+	else
+		posF, posL = p2, p1
+	end
 
 	u.moveToCur(posF, context)
 	u.moveToPrev(posL, context)
 
 	-- Note: old + virtualedit ~= inclusive  (if old and ends in EOL, it is ignored)
-	if sel == 'inclusive' or (sel == 'old' and context.virtualedit) then
+	if sel == "inclusive" or (sel == "old" and context.virtualedit) then
 		return not u.posLt(posL, posF)
 	end
 
-	assert(sel == 'old')
+	assert(sel == "old")
 
 	if posF[2] > 0 and posF[2] >= #lines[posF[1]] then
 		if posF[1] >= linesCount then return false end
@@ -72,20 +73,21 @@ function M.rangeInclusiveToVisual(p1, p2, context)
 	u.clampPos(p2, context)
 
 	local sel = context.selection
-	if sel == 'inclusive' or (sel == 'old' and context.virtualedit) then
-		return true
-	end
+	if sel == "inclusive" or (sel == "old" and context.virtualedit) then return true end
 
 	local posF, posL
-	if u.posLt(p1, p2) then posF, posL = p1, p2
-	else posF, posL = p2, p1 end
+	if u.posLt(p1, p2) then
+		posF, posL = p1, p2
+	else
+		posF, posL = p2, p1
+	end
 
-	if sel == 'exclusive' then
+	if sel == "exclusive" then
 		u.moveToNext(posL, context)
 		return true
 	end
 
-	assert(sel == 'old')
+	assert(sel == "old")
 
 	if posF[2] > 0 and posF[2] >= #lines[posF[1]] then
 		if posF[1] >= linesCount then return false end -- last EOL in file
@@ -111,37 +113,37 @@ function M.calcEndpoints(p1, p2, opts)
 	local mode = opts.mode
 	local incl = opts.inclusive
 	local context = opts.context
-	if mode == 'v' then
+	if mode == "v" then
 		if incl then
-			if M.rangeInclusiveToVisual(p1, p2, context) then return 'v' end
+			if M.rangeInclusiveToVisual(p1, p2, context) then return "v" end
 		else
-			if M.rangeToVisual(p1, p2, context) then return 'v' end
+			if M.rangeToVisual(p1, p2, context) then return "v" end
 		end
-	elseif mode == 'V' then
+	elseif mode == "V" then
 		u.clampPos(p1, context)
 		u.clampPos(p2, context)
-		return 'V'
+		return "V"
 	else
-		assert(mode == '')
+		assert(mode == "")
 
 		u.clampPos(p1, context)
 		u.clampPos(p2, context)
 
 		local sel = context.selection
 		if incl then
-			if sel == 'inclusive' or (sel == 'old' and context.blockwiseVirtualedit) then
-				return ''
-			elseif sel == 'old' then
+			if sel == "inclusive" or (sel == "old" and context.blockwiseVirtualedit) then
+				return ""
+			elseif sel == "old" then
 				local lines = context.lines
 				if (p1[2] == 0 or p1[2] < #lines[p1[1]])
 					and (p2[2] == 0 or p2[2] < #lines[p2[1]])
 				then
-					return ''
+					return ""
 				end
 			end
 		else
-			if sel == 'exclusive' then
-				if not u.isSameChar(p1, p2, context) then return '' end
+			if sel == "exclusive" then
+				if not u.isSameChar(p1, p2, context) then return "" end
 			end
 		end
 	end
@@ -155,23 +157,23 @@ end
 --- @param p1 table<integer, integer>
 --- @param p2 table<integer, integer>
 --- @param opts { mode: nil | "v" | "V" | "", inclusive: boolean?, context: table? }?
---- @return boolean: False if couldn't set the positions.
+--- @return boolean: False if couldn"t set the positions.
 function M.setEndpoints(p1, p2, opts)
 	local context = opts and opts.context or u.createContext()
 
 	local curMode = vim.fn.mode(true)
 
-	-- note: forced motion doesn't affect text objects defined through
+	-- note: forced motion doesn"t affect text objects defined through
 	-- visual selection (apart from broken <C-V>). Handle it ourselves.
-	local mode = opts and opts.mode or 'v'
+	local mode = opts and opts.mode or "v"
 	local inclusive = opts and opts.inclusive and true or false
-	if curMode == 'nov' then
-		if mode == 'v' then inclusive = not inclusive end
-		mode = 'v'
-	elseif curMode == 'noV' then
-		mode = 'V'
-	elseif curMode == 'no' then
-		mode = ''
+	if curMode == "nov" then
+		if mode == "v" then inclusive = not inclusive end
+		mode = "v"
+	elseif curMode == "noV" then
+		mode = "V"
+	elseif curMode == "no" then
+		mode = ""
 	end
 
 	local resMode = M.calcEndpoints(p1, p2, {
